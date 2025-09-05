@@ -1,20 +1,33 @@
 from fastapi import FastAPI
-import os
+from controllers.control import Control
 
 app = FastAPI()
+control = Control()
 
 @app.get("/")
-def home():
-    return {"mensaje": "Hola desde FastAPI en Render!"}
+def root():
+    return {"status": "ok", "message": "Servidor funcionando"}
 
-@app.get("/users")
-def get_users():
-    return [
-        {"id": 1, "nombre": "Ana"},
-        {"id": 2, "nombre": "Carlos"}
-    ]
+# -------- PROFESORES --------
+@app.get("/profesores")
+def listar_profesores():
+    return [{"id": p.id, "nombre": p.nombre, "edad": p.edad} for p in control.listar_profesores()]
 
-if __name__ == "__main__":
-    import uvicorn
-    port = int(os.environ.get("PORT", 8000))
-    uvicorn.run(app, host="0.0.0.0", port=port)
+@app.post("/profesores")
+def crear_profesor(nombre: str, edad: int):
+    profe = control.crear_profesor(nombre, edad)
+    return {"id": profe.id, "nombre": profe.nombre, "edad": profe.edad}
+
+@app.delete("/profesores/{id}")
+def eliminar_profesor(id: int):
+    return control.eliminar_profesor(id)
+
+# -------- ALUMNOS --------
+@app.get("/alumnos")
+def listar_alumnos():
+    return [{"id": a.id, "nombre": a.nombre, "edad": a.edad} for a in control.listar_alumnos()]
+
+@app.post("/alumnos")
+def crear_alumno(nombre: str, edad: int):
+    alum = control.crear_alumno(nombre, edad)
+    return {"id": alum.id, "nombre": alum.nombre, "edad": alum.edad}
